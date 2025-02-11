@@ -4,6 +4,9 @@ WORKDIR /app
 # Copy project source code
 COPY . .
 
+# Grant execute permissions to mvnw
+RUN chmod +x mvnw
+
 # Build the JAR file inside the container
 RUN ./mvnw clean package -DskipTests
 
