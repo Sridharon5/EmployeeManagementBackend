@@ -9,7 +9,7 @@ import com.my.services.serviceImpl;
 
 @RestController
 @RequestMapping("/employees")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://employee-management-frontend-seven-dun.vercel.app")
 public class EmployeeController {
 
     private final serviceImpl service;
