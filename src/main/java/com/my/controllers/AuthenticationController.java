@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://employee-management-frontend-seven-dun.vercel.app/")
 @RestController
 public class AuthenticationController {
 	@Autowired
