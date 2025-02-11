@@ -1,18 +1,14 @@
-FROM eclipse-temurin:17-jdk-alpine
+# Stage 1: Build JAR
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
-
-# Copy source code
 COPY . .
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
-# Grant execute permissions to mvnw
-RUN chmod +x mvnw
+# Stage 2: Run JAR
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+RUN chmod +x app.jar
 
-# Build the JAR inside the container
-RUN ./mvnw clean package -DskipTests
-
-# Rename and move the JAR properly
-RUN mv target/*.jar app.jar
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 EXPOSE 8080
