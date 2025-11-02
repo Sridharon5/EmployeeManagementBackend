@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
-import com.my.Repository.EmployeeRepository;
 import com.my.models.Employee;
+import com.my.repository.EmployeeRepository;
 
 @Service
 public class serviceImpl implements Services {

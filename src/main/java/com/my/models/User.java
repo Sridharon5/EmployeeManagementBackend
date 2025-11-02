@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "users1")
+@Table(name = "user_master")
 public class User implements UserDetails {
 
     @Id

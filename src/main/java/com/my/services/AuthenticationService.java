@@ -4,9 +4,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.my.Repository.UserRepository;
+
 import com.my.models.AuthenticationResponse;
 import com.my.models.User;
+import com.my.repository.UserRepository;
 
 @Service
 public class AuthenticationService {

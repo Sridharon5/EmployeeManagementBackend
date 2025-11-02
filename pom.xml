@@ -45,11 +45,11 @@
         </dependency>
 
         <!-- Microsoft SQL Server JDBC Driver (Updated Version) -->
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>12.4.2.jre11</version> <!-- Compatible with Java 17 -->
-        </dependency>
+       <dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+</dependency>
+
 
         <!-- JJWT Dependencies -->
         <dependency>

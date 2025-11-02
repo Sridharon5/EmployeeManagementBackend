@@ -43,16 +43,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     	System.out.println("Error in Config");
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS setup
-            .csrf(AbstractHttpConfigurer::disable) // ❌ Disable CSRF for APIs
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
+            .csrf(AbstractHttpConfigurer::disable) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/register").permitAll() // ✅ Public endpoints
-                .anyRequest().authenticated() // 🔒 Secure other endpoints
+                .requestMatchers("/auth/login", "/auth/register").permitAll() 
+                .anyRequest().authenticated() 
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 🔄 Use JWT (stateless)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // 🛡️ Add JWT filter
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); 
 
         return http.build();
     }
@@ -61,9 +61,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("https://employee-management-frontend-seven-dun.vercel.app")); // ✅ Allow frontend
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -1,12 +1,10 @@
-package com.my.EmployeeManagement;
+package com.my;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-@SpringBootApplication(scanBasePackages = "com.my")
-@EntityScan("com.my.models")  // Scan the models (JPA entities)
-@EnableJpaRepositories("com.my.Repository")  // Scan the repositories
+@SpringBootApplication
 public class EmployeeManagementApplication {
 
     public static void main(String[] args) {

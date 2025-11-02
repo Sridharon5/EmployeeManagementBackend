@@ -16,11 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// Logger setup
-
-
 @RequestMapping("/auth")
-@CrossOrigin(origins = "https://employee-management-frontend-seven-dun.vercel.app/")
+@CrossOrigin(origins = "*")
 @RestController
 public class AuthenticationController {
 	@Autowired
@@ -39,7 +36,8 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse>login(
     @RequestBody User request
-    ){   System.out.println("Error in me Controller");
+    ){   
+
     	return ResponseEntity.ok(authService.login(request));
     }
     

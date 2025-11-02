@@ -33,7 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
         String path = request.getRequestURI();
         return path.startsWith("/auth/login") || path.startsWith("/auth/register"); 
-        // ✅ Skip authentication for login & register
     }
 
     @Override
@@ -46,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String authHeader = request.getHeader("Authorization");
 
-            // ✅ If no token is present, continue request without modifying SecurityContext
+          
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
@@ -58,23 +57,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsI.loadUserByUsername(username);
 
-                // ✅ Validate token
                 if (jwtService.isValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    // ✅ Set authentication in SecurityContext
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
-            System.out.println("⚠️ JWT Authentication failed: " + e.getMessage()); // ✅ Log error
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // ✅ Return 403 for invalid tokens
+            System.out.println("JWT Authentication failed: " + e.getMessage()); 
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
             return;
         }
-
-        // ✅ Continue with the next filter
         filterChain.doFilter(request, response);
     }
 }
