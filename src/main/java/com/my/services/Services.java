@@ -2,7 +2,7 @@ package com.my.services;
 
 import org.springframework.http.ResponseEntity;
 
-import com.my.models.Employee;
+import com.my.entities.Employee;
 
 public interface Services {
      public abstract ResponseEntity<Object> create(Employee e);

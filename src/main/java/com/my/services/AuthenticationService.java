@@ -5,9 +5,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.my.models.AuthenticationResponse;
-import com.my.models.User;
-import com.my.repository.UserRepository;
+import com.my.entities.AuthenticationResponse;
+import com.my.entities.User;
+import com.my.repositories.UserRepository;
 
 @Service
 public class AuthenticationService {

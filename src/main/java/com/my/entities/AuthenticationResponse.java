@@ -1,4 +1,4 @@
-package com.my.models;
+package com.my.entities;
 
 public class AuthenticationResponse {
     private String token;

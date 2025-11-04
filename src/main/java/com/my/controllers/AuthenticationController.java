@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.my.models.AuthenticationResponse;
-import com.my.models.User;
+
+import com.my.entities.AuthenticationResponse;
+import com.my.entities.User;
 import com.my.services.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
