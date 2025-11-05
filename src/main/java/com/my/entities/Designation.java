@@ -1,10 +1,12 @@
 package com.my.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "designation")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // 👈 Add this line
 public class Designation {
 
     @Id
@@ -16,6 +18,7 @@ public class Designation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // 👈 Add this line too
     private Department department;
 
     @Column(name = "created_at", updatable = false, insertable = false)
