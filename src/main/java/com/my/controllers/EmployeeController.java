@@ -1,46 +1,57 @@
 package com.my.controllers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.my.dto.EmployeeUpdateDto;
 import com.my.entities.Employee;
-import com.my.services.serviceImpl;
+import com.my.services.EmployeeService;
 
 @RestController
 @RequestMapping("/employees")
 @CrossOrigin(origins = "*")
 public class EmployeeController {
 
-    private final serviceImpl service;
+	@Autowired
+	private EmployeeService EmployeeService;
 
-    @Autowired
-    public EmployeeController(serviceImpl service) {
-        this.service = service;
-    }
+	@PostMapping("/add")
+	public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+		return ResponseEntity.ok(EmployeeService.createEmployee(employee));
+	}
 
-    @PostMapping
-    public ResponseEntity<Object> create(@RequestBody Employee e) {
-        return service.create(e);
-    }
+	@GetMapping("/getAllEmployees")
+	public ResponseEntity<List<Employee>> getAllEmployees() {
+		return ResponseEntity.ok(EmployeeService.getAllEmployees());
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable String id, @RequestBody Employee e) {
-        return service.update(id, e);
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
+		return ResponseEntity.ok(EmployeeService.getEmployeeById(id));
+	}
 
-    @GetMapping
-    public ResponseEntity<Object> getAll() {
-        return service.getAl();
-    }
+	@PostMapping("/edit/{id}")
+	public ResponseEntity<Employee> updateEmployee(@PathVariable Integer id, @RequestBody EmployeeUpdateDto employee) {
+		return ResponseEntity.ok(EmployeeService.updateEmployee(id, employee));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> get(@PathVariable String id) {
-        return service.get(id);
-    }
+	@GetMapping("/delete/{id}")
+	public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Integer id) {
+		EmployeeService.deleteEmployee(id);
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable String id) {
-        return service.delete(id);
-    }
+		Map<String, String> response = new HashMap<>();
+		response.put("message", "Employee deleted successfully.");
+		return ResponseEntity.ok(response);
+	}
 }

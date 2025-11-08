@@ -1,29 +1,61 @@
 package com.my.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "employee_master")
+@Table(name = "employee")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  
-    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String firstName;
+  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private User user;
 
-    @Column
-    private String lastName; 
+   
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Department department;
 
-    @Column
-    private String email;
+    // Relationship with designation table
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "designation_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Designation designation;
+
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'")
+    private Status status = Status.ACTIVE;
+
+   
+    public enum Status {
+        ACTIVE,
+        INACTIVE
+    }
+
+ 
+    public Employee() {
+    }
+
+    public Employee(User user, Department department, Designation designation, LocalDate hireDate, Status status) {
+        this.user = user;
+        this.department = department;
+        this.designation = designation;
+        this.hireDate = hireDate;
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }
@@ -32,27 +64,43 @@ public class Employee {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public User getUser() {
+        return user;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getLastName() {
-        return lastName;
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
-    public String getEmail() {
-        return email;
+    public Designation getDesignation() {
+        return designation;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDesignation(Designation designation) {
+        this.designation = designation;
+    }
+
+    public LocalDate getHireDate() {
+        return hireDate;
+    }
+
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = hireDate;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
