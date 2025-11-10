@@ -24,16 +24,17 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
     public String register(User request) {
+        if (repository.existsByUsername(request.getUsername())) {
+            return "User already exists.Please choose another username.";
+        }
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-
-        repository.save(user); 
-
-        return "User registered successfully"; 
+        repository.save(user);
+        return "User registered successfully";
     }
 
     public AuthenticationResponse login(User request) {
