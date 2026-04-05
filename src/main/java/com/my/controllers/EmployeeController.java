@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.my.dto.EmployeeCreateDto;
 import com.my.dto.EmployeeUpdateDto;
+import com.my.dto.UserOptionDto;
 import com.my.entities.Employee;
 import com.my.services.EmployeeService;
 
@@ -27,8 +29,13 @@ public class EmployeeController {
 	private EmployeeService EmployeeService;
 
 	@PostMapping("/add")
-	public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-		return ResponseEntity.ok(EmployeeService.createEmployee(employee));
+	public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeCreateDto dto) {
+		return ResponseEntity.ok(EmployeeService.createEmployee(dto));
+	}
+
+	@GetMapping("/unlinked-users")
+	public ResponseEntity<List<UserOptionDto>> listUnlinkedUsers() {
+		return ResponseEntity.ok(EmployeeService.listUsersWithoutEmployee());
 	}
 
 	@GetMapping("/getAllEmployees")
@@ -36,18 +43,19 @@ public class EmployeeController {
 		return ResponseEntity.ok(EmployeeService.getAllEmployees());
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
+	/** Only digits so paths like {@code /employees/unlinked-users} are not captured as an id. */
+	@GetMapping("/{id:\\d+}")
+	public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
 		return ResponseEntity.ok(EmployeeService.getEmployeeById(id));
 	}
 
 	@PostMapping("/edit/{id}")
-	public ResponseEntity<Employee> updateEmployee(@PathVariable Integer id, @RequestBody EmployeeUpdateDto employee) {
+	public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody EmployeeUpdateDto employee) {
 		return ResponseEntity.ok(EmployeeService.updateEmployee(id, employee));
 	}
 
 	@GetMapping("/delete/{id}")
-	public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Long id) {
 		EmployeeService.deleteEmployee(id);
 
 		Map<String, String> response = new HashMap<>();

@@ -72,7 +72,14 @@ public class AuthenticationService {
 		String token = jwtService.generateToken(user);
 		System.out.println(token);
 
-		return new AuthenticationResponse(token, user.getRole(), user.getFirstName());
+		return new AuthenticationResponse(token, user.getRole(), user.getFirstName(), user.getId(),
+				user.getUsername());
+	}
+
+	public AuthenticationResponse refresh(User user) {
+		String token = jwtService.generateToken(user);
+		return new AuthenticationResponse(token, user.getRole(), user.getFirstName(), user.getId(),
+				user.getUsername());
 	}
 
 	 public Object getKeyPointIndicators() {

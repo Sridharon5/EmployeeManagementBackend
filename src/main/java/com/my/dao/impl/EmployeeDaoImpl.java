@@ -44,12 +44,12 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public Optional<Employee> findById(Integer id) {
+	public Optional<Employee> findById(Long id) {
 		return employeeRepository.findById(id);
 	}
 
 	@Override
-	public void deleteById(Integer id) {
+	public void deleteById(Long id) {
 		employeeRepository.deleteById(id);
 	}
 	@Override

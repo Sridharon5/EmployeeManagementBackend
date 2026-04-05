@@ -2,6 +2,8 @@ package com.my.filter;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtService jwtService;
     private final UserDetailsServiceImp userDetailsI;
@@ -40,12 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response, 
                                     FilterChain filterChain)
             throws ServletException, IOException {
-    	System.out.println("Error in me filter");
-        
         try {
             String authHeader = request.getHeader("Authorization");
 
-          
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
@@ -65,9 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            System.out.println("JWT Authentication failed: " + e.getMessage()); 
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-            return;
+            // Bad/expired token: do not send 403 here — `permitAll` routes must still work.
+            // Protected routes rely on Spring Security rejecting anonymous users.
+            log.debug("JWT not applied: {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

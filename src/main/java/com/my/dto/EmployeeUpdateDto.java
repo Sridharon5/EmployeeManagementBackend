@@ -2,7 +2,7 @@ package com.my.dto;
 
 public class EmployeeUpdateDto {
 
-    private Integer employeeId;
+    private Long employeeId;
 
     
     private Integer designationId;
@@ -17,11 +17,11 @@ public class EmployeeUpdateDto {
     private String lastName;
 
     
-    public Integer getEmployeeId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(Integer employeeId) {
+    public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
 

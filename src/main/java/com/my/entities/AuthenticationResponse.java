@@ -4,12 +4,16 @@ public class AuthenticationResponse {
     private String token;
     private Role role;
     private String name;
+    private Long userId;
+    private String username;
 
-    public AuthenticationResponse(String token, Role role2,String name) {
+    public AuthenticationResponse(String token, Role role2, String name, Long userId, String username) {
         System.out.println("Generating Authentication Response...");
         this.token = token;
         this.role = role2;
-        this.name=name;
+        this.name = name;
+        this.userId = userId;
+        this.username = username;
     }
 
     public String getToken() {
@@ -34,5 +38,21 @@ public class AuthenticationResponse {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }
