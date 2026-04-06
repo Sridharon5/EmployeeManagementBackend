@@ -76,6 +76,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 			if (employeeRepository.existsByUser_Id(user.getId())) {
 				throw new ResponseStatusException(HttpStatus.CONFLICT, "This user already has an employee record");
 			}
+			if (dto.getRole() != null) {
+				user.setRole(Role.normalizeForPersist(dto.getRole()));
+				return userRepository.save(user);
+			}
 			return user;
 		}
 
@@ -99,6 +103,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 			}
 			existing.setFirstName(fn);
 			existing.setLastName(ln);
+			if (dto.getRole() != null) {
+				existing.setRole(Role.normalizeForPersist(dto.getRole()));
+			}
 			return userRepository.save(existing);
 		}
 
@@ -109,7 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		String plain = (dto.getPassword() != null && !dto.getPassword().isBlank()) ? dto.getPassword().trim()
 				: DEFAULT_NEW_USER_PASSWORD;
 		created.setPassword(passwordEncoder.encode(plain));
-		created.setRole(dto.getRole() != null ? dto.getRole() : Role.EMPLOYEE);
+		created.setRole(Role.normalizeForPersist(dto.getRole()));
 		return userRepository.save(created);
 	}
 

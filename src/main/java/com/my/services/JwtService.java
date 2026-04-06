@@ -78,7 +78,7 @@ public String generateToken(User user) {
             .setSubject(user.getUsername())
             .addClaims(Map.of(
             		"userId", user.getId(),
-            		"role", user.getRole().name()))
+            		"role", user.getRole().toAuthorityAndClaimName()))
             .setIssuedAt(new Date(System.currentTimeMillis())) 
             .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TTL_MS)) 
             .signWith(getSignKey(), io.jsonwebtoken.SignatureAlgorithm.HS256) 
