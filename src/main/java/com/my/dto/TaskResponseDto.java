@@ -13,6 +13,7 @@ public class TaskResponseDto {
 	private String description;
 	private LocalDate dueDate;
 	private String status;
+	private String priority;
 	private Long assignedToEmployeeId;
 	private Long assignedToUserId;
 	/** From assignee's linked {@link User}; used for display (first required in UI logic, last optional). */
@@ -34,6 +35,7 @@ public class TaskResponseDto {
 		d.setDescription(t.getDescription());
 		d.setDueDate(t.getDueDate());
 		d.setStatus(t.getStatus() != null ? t.getStatus().name() : null);
+		d.setPriority(t.getPriority() != null ? t.getPriority().name() : null);
 		d.setCreatedAt(t.getCreatedAt());
 		d.setUpdatedAt(t.getUpdatedAt());
 		d.setClosedAt(t.getClosedAt());
@@ -98,6 +100,14 @@ public class TaskResponseDto {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getPriority() {
+		return priority;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
 	}
 
 	public Long getAssignedToEmployeeId() {

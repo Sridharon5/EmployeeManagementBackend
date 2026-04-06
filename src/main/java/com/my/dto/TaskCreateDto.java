@@ -11,6 +11,7 @@ public class TaskCreateDto {
 	private LocalDate dueDate;
 	private Long assignedToEmployeeId;
 	private Task.Status status = Task.Status.PENDING;
+	private Task.Priority priority = Task.Priority.MEDIUM;
 
 	public String getTitle() {
 		return title;
@@ -50,5 +51,13 @@ public class TaskCreateDto {
 
 	public void setStatus(Task.Status status) {
 		this.status = status;
+	}
+
+	public Task.Priority getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Task.Priority priority) {
+		this.priority = priority;
 	}
 }

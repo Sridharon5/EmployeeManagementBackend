@@ -10,7 +10,8 @@ public class TaskUpdateDto {
     private Long assignedToId;
     private Long evaluatorId;
     private LocalDate dueDate;
-    private String status; 
+    private String status;
+    private String priority;
 
     public TaskUpdateDto() {
     }
@@ -79,5 +80,13 @@ public class TaskUpdateDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }

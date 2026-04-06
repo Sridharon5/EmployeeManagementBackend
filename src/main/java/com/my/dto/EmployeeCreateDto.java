@@ -21,7 +21,7 @@ public class EmployeeCreateDto {
 	/** Plain text; defaults to {@code admin} when creating a new user. Ignored when linking by {@code userId}. */
 	private String password;
 
-	/** Defaults to {@link Role#USER} for newly created users. */
+	/** Defaults to {@link Role#EMPLOYEE} for newly created users. */
 	private Role role;
 
 	private Integer departmentId;

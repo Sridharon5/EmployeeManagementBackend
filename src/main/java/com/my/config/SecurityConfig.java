@@ -42,14 +42,31 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    	System.out.println("Error in Config");
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
             .csrf(AbstractHttpConfigurer::disable) 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
-                .requestMatchers("/departments/**", "/designations/**", "/employees/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/departments/add").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/departments/edit/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/departments/delete/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/departments/getAllDepartments").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/departments/*").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.POST, "/designations/add").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/designations/edit/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/designations/delete/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/designations/getAllDesignations").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/designations/*").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.POST, "/employees/add").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/employees/unlinked-users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/employees/getAllEmployees").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.POST, "/employees/edit/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/employees/delete/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/employees/*").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.POST, "/tasks/add").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/tasks/getAllTasks").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/tasks/delete/**").hasRole("ADMIN")
                 .requestMatchers("/auth/**", "/tasks/**", "/dashboard/**").authenticated()
                 .anyRequest().authenticated()
             )

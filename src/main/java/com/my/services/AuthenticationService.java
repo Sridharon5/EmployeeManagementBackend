@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.my.entities.AuthenticationResponse;
+import com.my.entities.Role;
 import com.my.entities.User;
 import com.my.repositories.DepartmentRepository;
 import com.my.repositories.DesignationRepository;
@@ -53,7 +54,7 @@ public class AuthenticationService {
 		user.setLastName(request.getLastName());
 		user.setUsername(request.getUsername());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		user.setRole(request.getRole());
+		user.setRole(Role.EMPLOYEE);
 		repository.save(user);
 		return "User registered successfully";
 	}

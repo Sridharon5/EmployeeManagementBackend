@@ -60,7 +60,7 @@ public class AuthenticationController {
     @GetMapping("/getKeyPointIndicators")
     public ResponseEntity<Object> getKeyPointIndicators() {
     	User user = SecurityUtil.requireCurrentUser();
-    	if (user.getRole() != Role.ADMIN) {
+    	if (user.getRole() != Role.ADMIN && user.getRole() != Role.MANAGER) {
     		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     	}
     	return ResponseEntity.ok(authService.getKeyPointIndicators());

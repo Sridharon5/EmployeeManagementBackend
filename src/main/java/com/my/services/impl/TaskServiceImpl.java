@@ -2,6 +2,7 @@ package com.my.services.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,9 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,10 +52,27 @@ public class TaskServiceImpl implements TaskService {
 		return PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
 	}
 
+	/** Maps API field {@code priority} to persisted {@code prioritySort} for correct urgency ordering. */
+	private static Pageable mapPrioritySortInPageable(Pageable pageable) {
+		Sort sort = pageable.getSort();
+		if (!sort.isSorted()) {
+			return pageable;
+		}
+		List<Order> orders = new ArrayList<>();
+		for (Order o : sort) {
+			if ("priority".equals(o.getProperty())) {
+				orders.add(new Order(o.getDirection(), "prioritySort"));
+			} else {
+				orders.add(o);
+			}
+		}
+		return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(orders));
+	}
+
 	@Override
 	@Transactional
 	public Task createTask(User currentUser, TaskCreateDto dto) {
-		requireAdmin(currentUser);
+		requireTaskManager(currentUser);
 		if (dto.getTitle() == null || dto.getTitle().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
 		}
@@ -70,6 +91,7 @@ public class TaskServiceImpl implements TaskService {
 		task.setAssignedTo(assignee);
 		task.setEvaluator(null);
 		task.setStatus(dto.getStatus() != null ? dto.getStatus() : Task.Status.PENDING);
+		task.setPriority(dto.getPriority() != null ? dto.getPriority() : Task.Priority.MEDIUM);
 		task.setId(null);
 		task.setCreatedAt(LocalDateTime.now());
 		task.setUpdatedAt(LocalDateTime.now());
@@ -79,29 +101,39 @@ public class TaskServiceImpl implements TaskService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<TaskResponseDto> getAllTasksForAdmin(User currentUser) {
-		requireAdmin(currentUser);
-		return taskRepository.findAll().stream().map(TaskResponseDto::fromEntity).toList();
+		requireTaskManager(currentUser);
+		return taskRepository
+				.findAll(Sort.by(Sort.Order.desc("prioritySort"), Sort.Order.asc("dueDate")))
+				.stream()
+				.map(TaskResponseDto::fromEntity)
+				.toList();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<TaskResponseDto> listTasks(User currentUser, String scope, Pageable pageable) {
-		Pageable p = limitPageable(pageable);
-		if ("all".equalsIgnoreCase(scope) && isAdmin(currentUser)) {
-			return taskRepository.findAll(p).map(TaskResponseDto::fromEntity);
+	public Page<TaskResponseDto> listTasks(User currentUser, String scope, Task.Priority priorityFilter,
+			Pageable pageable) {
+		Pageable p = mapPrioritySortInPageable(limitPageable(pageable));
+		Specification<Task> spec = taskVisibilitySpec(currentUser, scope);
+		if (priorityFilter != null) {
+			spec = spec.and((root, query, cb) -> cb.equal(root.get("priority"), priorityFilter));
 		}
-		if ("my".equalsIgnoreCase(scope) || "all".equalsIgnoreCase(scope)) {
-			return pageMyTasks(currentUser, p);
-		}
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "scope must be 'my' or 'all'");
+		return taskRepository.findAll(spec, p).map(TaskResponseDto::fromEntity);
 	}
 
-	private Page<TaskResponseDto> pageMyTasks(User currentUser, Pageable p) {
-		Optional<Employee> emp = employeeRepository.findByUser_Id(currentUser.getId());
-		if (emp.isEmpty()) {
-			return Page.empty(p);
+	private Specification<Task> taskVisibilitySpec(User currentUser, String scope) {
+		if ("all".equalsIgnoreCase(scope) && canViewAllTasks(currentUser)) {
+			return (root, query, cb) -> cb.conjunction();
 		}
-		return taskRepository.findByAssignedTo_Id(emp.get().getId(), p).map(TaskResponseDto::fromEntity);
+		if ("my".equalsIgnoreCase(scope) || "all".equalsIgnoreCase(scope)) {
+			Optional<Employee> emp = employeeRepository.findByUser_Id(currentUser.getId());
+			if (emp.isEmpty()) {
+				return (root, query, cb) -> cb.disjunction();
+			}
+			Long assigneeId = emp.get().getId();
+			return (root, query, cb) -> cb.equal(root.get("assignedTo").get("id"), assigneeId);
+		}
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "scope must be 'my' or 'all'");
 	}
 
 	@Override
@@ -117,7 +149,7 @@ public class TaskServiceImpl implements TaskService {
 	public TaskResponseDto patchTask(User currentUser, Long id, TaskPatchDto patch) {
 		Task task = loadTaskDetailed(id);
 		assertCanRead(currentUser, task);
-		if (isAdmin(currentUser)) {
+		if (isAdmin(currentUser) || isManager(currentUser)) {
 			applyAdminPatch(task, patch, currentUser);
 		} else {
 			applyUserPatch(task, patch, currentUser);
@@ -139,6 +171,7 @@ public class TaskServiceImpl implements TaskService {
 		p.setEvaluatorEmployeeId(dto.getEvaluatorId());
 		p.setDueDate(dto.getDueDate());
 		p.setStatus(dto.getStatus());
+		p.setPriority(dto.getPriority());
 		return patchTask(currentUser, id, p);
 	}
 
@@ -184,6 +217,24 @@ public class TaskServiceImpl implements TaskService {
 		return user.getRole() == Role.ADMIN;
 	}
 
+	private static boolean isManager(User user) {
+		return user.getRole() == Role.MANAGER;
+	}
+
+	private static boolean isTaskManager(User user) {
+		return isAdmin(user) || isManager(user);
+	}
+
+	private static void requireTaskManager(User user) {
+		if (!isTaskManager(user)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to manage tasks");
+		}
+	}
+
+	private static boolean canViewAllTasks(User user) {
+		return isTaskManager(user);
+	}
+
 	private static void requireAdmin(User user) {
 		if (!isAdmin(user)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin only");
@@ -196,7 +247,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	private static void assertCanRead(User user, Task task) {
-		if (isAdmin(user) || isAssignee(user, task)) {
+		if (isAdmin(user) || isManager(user) || isAssignee(user, task)) {
 			return;
 		}
 		throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to access this task");
@@ -210,12 +261,21 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
+	private static Task.Priority parsePriority(String raw) {
+		try {
+			return Task.Priority.valueOf(raw.trim().toUpperCase());
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid priority: " + raw);
+		}
+	}
+
 	private void applyUserPatch(Task task, TaskPatchDto patch, User currentUser) {
 		if (!isAssignee(currentUser, task)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the assignee can update this task");
 		}
 		if (patch.getTitle() != null || patch.getDescription() != null || patch.getAssignedToEmployeeId() != null
-				|| patch.getEvaluatorEmployeeId() != null || patch.getDueDate() != null) {
+				|| patch.getEvaluatorEmployeeId() != null || patch.getDueDate() != null
+				|| patch.getPriority() != null) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You may only update status and completion note");
 		}
 		if (patch.getStatus() != null) {
@@ -268,6 +328,9 @@ public class TaskServiceImpl implements TaskService {
 			Employee ev = employeeRepository.findById(patch.getEvaluatorEmployeeId())
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "evaluator not found"));
 			task.setEvaluator(ev);
+		}
+		if (patch.getPriority() != null) {
+			task.setPriority(parsePriority(patch.getPriority()));
 		}
 		if (patch.getStatus() != null) {
 			Task.Status next = parseStatus(patch.getStatus());

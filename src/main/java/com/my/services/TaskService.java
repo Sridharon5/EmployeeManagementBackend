@@ -19,7 +19,7 @@ public interface TaskService {
 
 	List<TaskResponseDto> getAllTasksForAdmin(User currentUser);
 
-	Page<TaskResponseDto> listTasks(User currentUser, String scope, Pageable pageable);
+	Page<TaskResponseDto> listTasks(User currentUser, String scope, Task.Priority priorityFilter, Pageable pageable);
 
 	TaskResponseDto getTaskById(User currentUser, Long id);
 

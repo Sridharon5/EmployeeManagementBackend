@@ -43,9 +43,10 @@ public class TaskController {
 
 	@GetMapping
 	public ResponseEntity<Page<TaskResponseDto>> listTasks(@RequestParam(defaultValue = "my") String scope,
+			@RequestParam(required = false) Task.Priority priority,
 			@PageableDefault(size = 20, sort = "dueDate", direction = Sort.Direction.ASC) Pageable pageable) {
 		return ResponseEntity
-				.ok(taskService.listTasks(SecurityUtil.requireCurrentUser(), scope, pageable));
+				.ok(taskService.listTasks(SecurityUtil.requireCurrentUser(), scope, priority, pageable));
 	}
 
 	@GetMapping("/getAllTasks")

@@ -109,7 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		String plain = (dto.getPassword() != null && !dto.getPassword().isBlank()) ? dto.getPassword().trim()
 				: DEFAULT_NEW_USER_PASSWORD;
 		created.setPassword(passwordEncoder.encode(plain));
-		created.setRole(dto.getRole() != null ? dto.getRole() : Role.USER);
+		created.setRole(dto.getRole() != null ? dto.getRole() : Role.EMPLOYEE);
 		return userRepository.save(created);
 	}
 

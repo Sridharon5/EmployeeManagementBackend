@@ -1,5 +1,6 @@
 package com.my.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -38,6 +39,14 @@ public class Task {
     @Column(columnDefinition = "ENUM('PENDING','IN_PROGRESS','COMPLETED','OVERDUE','REJECTED') DEFAULT 'PENDING'")
     private Status status = Status.PENDING;
 
+    /** LOW → CRITICAL sort order uses {@link Priority#ordinal()} via {@link #prioritySort}. */
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('LOW','MEDIUM','HIGH','CRITICAL') DEFAULT 'MEDIUM'")
+    private Priority priority = Priority.MEDIUM;
+
+    @Column(name = "priority_sort", nullable = false)
+    private int prioritySort = Priority.MEDIUM.ordinal();
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -63,6 +72,13 @@ public class Task {
         REJECTED
     }
 
+    public enum Priority {
+        LOW,
+        MEDIUM,
+        HIGH,
+        CRITICAL
+    }
+
     public Task() {
     }
 
@@ -73,6 +89,15 @@ public class Task {
         this.evaluator = evaluator;
         this.dueDate = dueDate;
         this.status = status;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void syncPrioritySort() {
+        if (priority == null) {
+            priority = Priority.MEDIUM;
+        }
+        this.prioritySort = priority.ordinal();
     }
     
     public Long getId() {
@@ -129,6 +154,24 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority != null ? priority : Priority.MEDIUM;
+        this.prioritySort = this.priority.ordinal();
+    }
+
+    @JsonIgnore
+    public int getPrioritySort() {
+        return prioritySort;
+    }
+
+    public void setPrioritySort(int prioritySort) {
+        this.prioritySort = prioritySort;
     }
 
     public LocalDateTime getCreatedAt() {

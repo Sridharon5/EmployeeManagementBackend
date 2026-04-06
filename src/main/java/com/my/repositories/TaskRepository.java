@@ -7,14 +7,16 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.my.entities.Task;
 
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
 
 	@Query("SELECT COUNT(DISTINCT t.id) FROM Task t")
 	long countDistinctById();
@@ -24,6 +26,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
 	@EntityGraph(attributePaths = { "assignedTo", "assignedTo.user", "evaluator", "evaluator.user", "closedBy" })
 	Page<Task> findAll(Pageable pageable);
+
+	@Override
+	@EntityGraph(attributePaths = { "assignedTo", "assignedTo.user", "evaluator", "evaluator.user", "closedBy" })
+	Page<Task> findAll(Specification<Task> spec, Pageable pageable);
 
 	@Override
 	@EntityGraph(attributePaths = { "assignedTo", "assignedTo.user", "evaluator", "evaluator.user", "closedBy" })
